@@ -1,14 +1,13 @@
 require('dotenv').config(); // Load environment variables
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios'); // In case you need to send any requests
 const { handleTradeRequest } = require('./tradingBot'); // Import the tradingBot.js functions
 
 const app = express();
 app.use(bodyParser.json()); // Parse incoming JSON data
 
 // Webhook endpoint to receive trading signals from TradingView
-app.post('/webhook', async (req, res) => {
+app.post('/api/webhook', async (req, res) => {
   const { symbol, side, quantity, price } = req.body;
 
   // Validate that all required fields are present
