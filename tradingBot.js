@@ -20,47 +20,33 @@ function generateSignature(params) {
 }
 
 // Function to place a private order (e.g., to execute trades on Bybit)
-async function placeOrder(symbol, side, quantity, orderType) {
-  const timestamp = Date.now();
-  const params = {
-    api_key: process.env.BYBIT_API_KEY,
-    symbol: symbol,
-    side: side,
-    qty: quantity,
-    timestamp: timestamp,
-    time_in_force: 'GoodTillCancel', // Default order expiration setting
-    order_type: orderType            // 'Market' or 'Limit'
-  };
-
-  // Include price only for limit orders
-  if (orderType === 'Limit') {
-    throw new Error('Limit orders require a price'); // Handle limit order price requirement here if needed
-  }
-
-  // Generate signature for the API call
-  params.sign = generateSignature(params);
-
-  try {
-    const response = await axios.post(`${BYBIT_BASE_URL}/v2/private/order/create`, null, {
-      params,
-      headers: {
-        'User-Agent': 'TradingBot/1.0',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-    console.log('Order placed successfully:', response.data);
-    return response.data.result;
-  } catch (error) {
-    if (error.response) {
-      console.error('Error placing order:', error.response.data);
-    } else {
-      console.error('Error placing order:', error.message);
+// Function to place a private order (e.g., to execute trades on Bybit)
+async function placeOrder(symbol, side, quantity, orderType = 'Market') {
+    const timestamp = Date.now().toString();
+    const params = {
+      api_key: process.env.BYBIT_API_KEY,
+      symbol: symbol,
+      side: side,
+      order_type: orderType,        // 'Market' or 'Limit'
+      qty: quantity,
+      time_in_force: 'GoodTillCancel',
+      timestamp: timestamp
+    };
+  
+    // Generate signature for the API call
+    params.sign = generateSignature(params);
+  
+    try {
+      // Send the request to Bybit API to place an order
+      const response = await axios.post(`${BYBIT_BASE_URL}/v5/order/create`, params);
+      console.log('Order placed successfully:', response.data);
+      return response.data.result;
+    } catch (error) {
+      console.error('Error placing order:', error.response ? error.response.data : error.message);
+      return false; // Return false if there’s an error
     }
-    return false;
   }
   
-}
 
 // Function to receive and handle trade requests from webhook.js
 async function handleTradeRequest(symbol, side, quantity, orderType) {
