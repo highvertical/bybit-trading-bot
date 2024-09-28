@@ -20,7 +20,6 @@ function generateSignature(params) {
 }
 
 // Function to place a private order (e.g., to execute trades on Bybit)
-// Function to place a private order (e.g., to execute trades on Bybit)
 async function placeOrder(symbol, side, quantity, orderType = 'Market') {
     const timestamp = Date.now().toString();
     const params = {
