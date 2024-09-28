@@ -47,14 +47,15 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
           }
         });
   
-        console.log('Bybit API response:', response.data); // Log full response from Bybit
+        // Log the full response from Bybit to understand what's happening
+        console.log('Bybit API full response:', JSON.stringify(response.data, null, 2));
   
         if (response.data.result) {
           console.log('Order placed successfully:', response.data.result);
           return response.data.result;
         } else {
-          console.error('Bybit API error:', response.data); // Log error details
-          return { success: false, message: response.data.ret_msg || 'Unknown error' }; // Return the Bybit error message
+          console.error('Bybit API returned no result:', response.data);
+          return { success: false, message: response.data.ret_msg || 'Unknown error from Bybit' };
         }
       } catch (error) {
         console.error('Error placing order:', error.response ? error.response.data : error.message);
@@ -67,7 +68,7 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
       }
     }
     return false;
-  }  
+  }   
    
 // Handle trade request triggered by a webhook
 async function handleTradeRequest(symbol, side, quantity, orderType) {
