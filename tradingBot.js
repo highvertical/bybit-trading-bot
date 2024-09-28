@@ -19,6 +19,7 @@ function generateSignature(params, secret) {
 }
 
 // Place an order on Bybit
+/***
 async function placeOrder(symbol, side, quantity, orderType = 'Market', category = 'linear') {
   const timestamp = Date.now().toString();
   const params = {
@@ -62,6 +63,64 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
   }
   return false;
 }
+***/
+async function placeOrder(symbol, side, quantity, orderType = 'Market', category = 'linear') {
+    const timestamp = Date.now().toString();
+    const params = {
+      api_key: API_KEY,
+      symbol: symbol,
+      side: side,
+      qty: quantity,
+      order_type: orderType,
+      category: category,
+      time_in_force: 'GoodTillCancel',
+      recv_window: RECV_WINDOW,
+      timestamp: timestamp
+    };
+  
+    params.sign = generateSignature(params, API_SECRET);
+  
+    for (let retries = 3; retries > 0; retries--) {
+      try {
+        // Log the parameters being sent to Bybit
+        console.log('Placing order with params:', params);
+        
+        const response = await axios.post(`${BYBIT_BASE_URL}/v5/order/create`, params, {
+          headers: {
+            'X-BAPI-API-KEY': API_KEY,
+            'X-BAPI-TIMESTAMP': timestamp,
+            'X-BAPI-RECV-WINDOW': RECV_WINDOW,
+            'X-BAPI-SIGN': params.sign,
+            'Content-Type': 'application/json',
+          }
+        });
+  
+        // Log the full API response from Bybit
+        console.log('API response:', response.data);
+  
+        // Check for specific errors in Bybit's response
+        if (response.data.ret_code !== 0) {
+          console.error('Bybit API error:', response.data.ret_msg);
+          return false;
+        }
+  
+        console.log('Order placed successfully:', response.data);
+        return response.data.result;
+      } catch (error) {
+        // Log detailed error information for debugging
+        console.error('Error placing order:', error.response ? error.response.data : error.message);
+        
+        if (error.response && error.response.status === 429 && retries > 0) {
+          console.log('Rate limit exceeded, retrying...');
+          await new Promise(res => setTimeout(res, 1000));
+        } else {
+          return false;
+        }
+      }
+    }
+    return false;
+  }
+  
 
 // Handle trade request triggered by a webhook
 async function handleTradeRequest(symbol, side, quantity, orderType) {
