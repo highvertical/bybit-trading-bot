@@ -58,7 +58,8 @@ async function handleTradeRequest(symbol, side, quantity, orderType) {
     console.log('Trade executed successfully:', result);
     return { success: true, result };
   } else {
-    console.log('Trade execution failed.');
+    //console.log('Trade execution failed.');
+    console.log(`Received trade signal - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Order Type: ${orderType}`);
     return { success: false };
   }
 }
