@@ -37,8 +37,6 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
   
     for (let retries = 3; retries > 0; retries--) {
       try {
-        console.log('Placing order with params:', params);
-  
         const response = await axios.post(`${BYBIT_BASE_URL}/v5/order/create`, params, {
           headers: {
             'X-BAPI-API-KEY': API_KEY,
@@ -49,32 +47,28 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
           }
         });
   
-        console.log('API response:', response.data);
+        console.log('Bybit API response:', response.data); // Log full response from Bybit
   
-        if (response.data.ret_code !== 0) {
-          console.error('Bybit API error:', response.data.ret_msg);
-          return { success: false, message: response.data.ret_msg }; // Send the error message back
+        if (response.data.result) {
+          console.log('Order placed successfully:', response.data.result);
+          return response.data.result;
+        } else {
+          console.error('Bybit API error:', response.data); // Log error details
+          return { success: false, message: response.data.ret_msg || 'Unknown error' }; // Return the Bybit error message
         }
-  
-        console.log('Order placed successfully:', response.data);
-        return response.data.result;
       } catch (error) {
-        // Log detailed error information for debugging
         console.error('Error placing order:', error.response ? error.response.data : error.message);
-        
         if (error.response && error.response.status === 429 && retries > 0) {
           console.log('Rate limit exceeded, retrying...');
           await new Promise(res => setTimeout(res, 1000));
         } else {
-          // Return the error response from Bybit
-          return { success: false, message: error.response ? error.response.data : error.message };
+          return false;
         }
       }
     }
-    return { success: false, message: 'Max retries exceeded.' };
-  }
+    return false;
+  }  
    
-
 // Handle trade request triggered by a webhook
 async function handleTradeRequest(symbol, side, quantity, orderType) {
   console.log(`Received trade signal - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Order Type: ${orderType}`);
