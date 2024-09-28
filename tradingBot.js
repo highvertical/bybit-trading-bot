@@ -1,3 +1,4 @@
+require('dotenv').config(); // Load environment variables
 const crypto = require('crypto');
 const axios = require('axios');
 
@@ -50,3 +51,24 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
     return false;  // Return false if there’s an error
   }
 }
+
+// Function to receive and handle trade requests from webhook.js
+async function handleTradeRequest(symbol, side, quantity, orderType) {
+  console.log(`Received trade signal - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Order Type: ${orderType}`);
+
+  // Place the trade on Bybit
+  const result = await placeOrder(symbol, side, quantity, orderType);
+
+  if (result) {
+    console.log('Trade executed successfully:', result);
+    return { success: true, result };
+  } else {
+    //console.log('Trade execution failed.');
+    console.log(`Received trade signal - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Order Type: ${orderType}`);
+    return { success: false };
+  }
+}
+
+module.exports = {
+  handleTradeRequest
+};
