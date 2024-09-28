@@ -117,7 +117,8 @@ async function placeOrder(symbol, side, quantity, orderType = 'Market', category
       }
     }
     return { success: false, message: 'Max retries exceeded.' };
-  }  
+  }
+   
 
 // Handle trade request triggered by a webhook
 async function handleTradeRequest(symbol, side, quantity, orderType) {
