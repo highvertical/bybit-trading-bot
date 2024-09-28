@@ -19,51 +19,6 @@ function generateSignature(params, secret) {
 }
 
 // Place an order on Bybit
-/***
-async function placeOrder(symbol, side, quantity, orderType = 'Market', category = 'linear') {
-  const timestamp = Date.now().toString();
-  const params = {
-    api_key: API_KEY,
-    symbol: symbol,
-    side: side,
-    qty: quantity,
-    order_type: orderType,
-    category: category,
-    time_in_force: 'GoodTillCancel',
-    recv_window: RECV_WINDOW,
-    timestamp: timestamp
-  };
-
-  params.sign = generateSignature(params, API_SECRET);
-
-  const delay = (ms) => new Promise(res => setTimeout(res, ms));
-
-  for (let retries = 3, waitTime = 1000; retries > 0; retries--, waitTime *= 2) {
-    try {
-      const response = await axiosInstance.post(`${BYBIT_BASE_URL}/v5/order/create`, params, {
-        headers: {
-          'X-BAPI-API-KEY': API_KEY,
-          'X-BAPI-TIMESTAMP': timestamp,
-          'X-BAPI-RECV-WINDOW': RECV_WINDOW,
-          'X-BAPI-SIGN': params.sign,
-          'Content-Type': 'application/json',
-        }
-      });
-      console.log('Order placed successfully:', response.data);
-      return response.data.result;
-    } catch (error) {
-      console.error('Error placing order:', error.response ? error.response.data : error.message);
-      if (error.response && error.response.status === 429 && retries > 0) {
-        console.log('Rate limit exceeded, retrying...');
-        await delay(waitTime);
-      } else {
-        return false;
-      }
-    }
-  }
-  return false;
-}
-***/
 async function placeOrder(symbol, side, quantity, orderType = 'Market', category = 'linear') {
     const timestamp = Date.now().toString();
     const params = {
