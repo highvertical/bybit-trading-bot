@@ -20,18 +20,22 @@ function generateSignature(params) {
 }
 
 // Function to place a private order (e.g., to execute trades on Bybit)
-async function placeOrder(symbol, side, quantity, price) {
+async function placeOrder(symbol, side, quantity, orderType) {
   const timestamp = Date.now();
   const params = {
     api_key: process.env.BYBIT_API_KEY,
     symbol: symbol,
     side: side,
-    order_type: 'Limit',        // You can adjust this to 'Market' or 'Limit' depending on your strategy
     qty: quantity,
-    price: price,               // Used if order type is 'Limit'
-    time_in_force: 'GoodTillCancel',
-    timestamp: timestamp
+    timestamp: timestamp,
+    time_in_force: 'GoodTillCancel', // Default order expiration setting
+    order_type: orderType            // 'Market' or 'Limit'
   };
+
+  // Include price only for limit orders
+  if (orderType === 'Limit') {
+    throw new Error('Limit orders require a price'); // Handle limit order price requirement here if needed
+  }
 
   // Generate signature for the API call
   params.sign = generateSignature(params);
@@ -48,11 +52,11 @@ async function placeOrder(symbol, side, quantity, price) {
 }
 
 // Function to receive and handle trade requests from webhook.js
-async function handleTradeRequest(symbol, side, quantity, price) {
-  console.log(`Received trade signal - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Price: ${price}`);
+async function handleTradeRequest(symbol, side, quantity, orderType) {
+  console.log(`Received trade signal - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Order Type: ${orderType}`);
 
   // Place the trade on Bybit
-  const result = await placeOrder(symbol, side, quantity, price);
+  const result = await placeOrder(symbol, side, quantity, orderType);
 
   if (result) {
     console.log('Trade executed successfully:', result);

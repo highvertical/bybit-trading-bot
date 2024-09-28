@@ -8,18 +8,18 @@ app.use(bodyParser.json()); // Parse incoming JSON data
 
 // Webhook endpoint to receive trading signals from TradingView
 app.post('/api/webhook', async (req, res) => {
-  const { symbol, side, quantity, price } = req.body;
+  const { symbol, side, quantity, order_type } = req.body;
 
   // Validate that all required fields are present
-  if (!symbol || !side || !quantity || !price) {
-    return res.status(400).send({ error: 'Missing required parameters (symbol, side, quantity, price).' });
+  if (!symbol || !side || !quantity || !order_type) {
+    return res.status(400).send({ error: 'Missing required parameters (symbol, side, quantity, order_type).' });
   }
 
-  console.log(`Webhook received - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Price: ${price}`);
+  console.log(`Webhook received - Symbol: ${symbol}, Side: ${side}, Quantity: ${quantity}, Order Type: ${order_type}`);
 
   // Send the trade request to the trading bot
   try {
-    const tradeResult = await handleTradeRequest(symbol, side, quantity, price);
+    const tradeResult = await handleTradeRequest(symbol, side, quantity, order_type);
 
     if (tradeResult.success) {
       return res.status(200).send({ success: true, message: 'Trade executed successfully.', result: tradeResult.result });
