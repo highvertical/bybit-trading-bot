@@ -86,7 +86,7 @@ async function handleTradeRequest(symbol, side, quantity, orderType) {
     return { success: true, result };
   } else {
     console.error('Trade execution failed:', { symbol, side, quantity, orderType });
-    return { success: false };
+    return { success: false , response: result};
   }
 }
 
