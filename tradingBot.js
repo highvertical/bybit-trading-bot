@@ -41,25 +41,25 @@ async function placeOrder(symbol, side, quantity, orderType) {
   params.sign = generateSignature(params);
 
   try {
-    const response = await axios.post(`${BYBIT_BASE_URL}/v2/private/order/create`, null, { params });
+    const response = await axios.post(`${BYBIT_BASE_URL}/v2/private/order/create`, null, {
+      params,
+      headers: {
+        'User-Agent': 'TradingBot/1.0',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
     console.log('Order placed successfully:', response.data);
     return response.data.result;
   } catch (error) {
-    console.error('Error placing order:', error.response ? error.response.data : error.message);
-    return false; // Return false if there’s an error
+    if (error.response) {
+      console.error('Error placing order:', error.response.data);
+    } else {
+      console.error('Error placing order:', error.message);
+    }
+    return false;
   }
-
-  /***
-  try {
-    // Send the request to Bybit API to place an order
-    const response = await axios.post(`${BYBIT_BASE_URL}/v2/private/order/create`, null, { params });
-    console.log('Order placed successfully:', response.data);
-    return response.data.result;
-  } catch (error) {
-    console.error('Error placing order:', error.response ? error.response.data : error.message);
-    return false; // Return false if there’s an error
-  }
-  ***/
+  
 }
 
 // Function to receive and handle trade requests from webhook.js
